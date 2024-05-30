@@ -2,7 +2,7 @@ package linkedlist;
 
 public class LinkedList {
 
-    Node head;
+    private Node head; // Use private for better encapsulation
 
     static class Node {
         int data;
@@ -14,130 +14,172 @@ public class LinkedList {
         }
     }
 
-    public static LinkedList addFirst(int data, LinkedList list) {
-        Node temp = new Node(data);
-        if (list.head == null) {
-            list.head = temp;
-        } else {
-            Node tempNode = list.head;
-            temp.next = tempNode;
-            list.head = temp;
-        }
-        return list;
+    // **Optimized addFirst**
+    public LinkedList addFirst(int data) {
+        Node newNode = new Node(data);
+        newNode.next = head;
+        head = newNode;
+        return this; // Return the modified list for chaining
     }
 
-    public static LinkedList deleteFirst(LinkedList list) {
-        if (list.head.next == null) {
-            return null;
-        } else {
-            Node temp = list.head.next;
-            list.head = temp;
+    // **Optimized addLast** (iterative approach)
+    public LinkedList addLast(int data) {
+        Node newNode = new Node(data);
+        if (head == null) {
+            head = newNode;
+            return this;
         }
 
-        return list;
+        Node current = head;
+        while (current.next != null) {
+            current = current.next;
+        }
+        current.next = newNode;
+        return this;
     }
 
-    public static LinkedList additionLast(int data, LinkedList list) {
-        Node temp = new Node(data);
-        if (list.head == null) {
-            list.head = temp;
-        } else {
-            Node tempNode = list.head;
-            while (tempNode.next != null) {
-                tempNode = tempNode.next;
-            }
-            tempNode.next = temp;
+    // **Simplified deleteFirst**
+    public LinkedList deleteFirst() {
+        if (head != null) {
+            head = head.next;
+        }
+        return this;
+    }
+
+    // **Simplified deleteLast** (iterative approach)
+    public LinkedList deleteLast() {
+        if (head == null || head.next == null) {
+            head = null;
+            return this;
         }
 
-        return list;
-    }
-
-    public static void printList(LinkedList list) {
-        Node temp = list.head;
-        while (temp != null) {
-            System.out.println(temp.data);
-            temp = temp.next;
+        Node current = head;
+        while (current.next.next != null) {
+            current = current.next;
         }
+        current.next = null;
+        return this;
     }
 
-    public static int getSize(LinkedList list) {
-        if (list.head == null) {
-            return 0;
-        } else {
-            Node temp = list.head;
-            int size = 0;
-            while (temp != null) {
-                size++;
-                temp = temp.next;
-            }
-            return size;
+    // **Corrected deleteAtIdx using a single loop**
+    public LinkedList deleteAtIdx(int index) {
+        if (index < 0 || isEmpty()) {
+            return this;
         }
-    }
 
-    public static LinkedList deletionLast(LinkedList list) {
-        Node temp = list.head;
-        if (temp.next == null) {
-            temp = null;
-        } else {
-            while (temp.next.next != null) {
-                temp = temp.next;
-            }
-            temp.next = null;
-        }
-        return list;
-    }
-
-    // Tried but wasn't able to implement yet
-    public static LinkedList deleteAtIdx(LinkedList list, int data) {
-        Node temp = list.head;
+        Node current = head;
         Node prev = null;
-        if (temp.data == data) {
-            if (temp.next == null) {
-                return null;
-            } else {
-                list.head = temp.next;
-            }
-        }
-        while (temp != null && temp.data != data) {
-            prev = temp;
-            temp = temp.next;
+        int count = 0;
+
+        while (current != null && count < index) {
+            prev = current;
+            current = current.next;
+            count++;
         }
 
-        while (temp != null) {
-            prev.next = temp.next;
+        if (current == null) { // Handle deletion beyond list size
+            return this;
         }
 
-        return list;
+        if (prev == null) { // Delete head node
+            head = current.next;
+        } else {
+            prev.next = current.next;
+        }
+
+        return this;
+    }
+
+    public void deleteByData(int data) {
+        if (isEmpty()) {
+            return; // Handle empty list
+        }
+
+        Node current = head;
+        Node prev = null;
+
+        while (current != null && current.data != data) {
+            prev = current;
+            current = current.next;
+        }
+
+        if (current == null) { // Data not found
+            return;
+        }
+
+        if (prev == null) { // Delete head node
+            head = current.next;
+        } else {
+            prev.next = current.next;
+        }
+    }
+
+    public LinkedList addAtIdx(int idx, int data) {
+        if (idx < 0 || isEmpty()) {
+            return addFirst(data);
+        }
+        Node newNode = new Node(data);
+        Node current = head;
+        Node prev = null;
+        int count = 0;
+
+        while (current != null && count < idx) {
+            prev = current;
+            current = current.next;
+            count++;
+        }
+
+        if (idx == 0) { // Insert at the beginning
+            newNode.next = head;
+            head = newNode;
+        } else if (prev != null) { // Insert in the middle
+            newNode.next = current;
+            prev.next = newNode;
+        } else { // Insert at the end (prev is null)
+            addLast(data); // Call the existing addLast method
+        }
+        return this;
+    }
+
+    public boolean isEmpty() {
+        return head == null;
+    }
+
+    public int getSize() {
+        int size = 0;
+        Node current = head;
+        while (current != null) {
+            size++;
+            current = current.next;
+        }
+        return size;
+    }
+
+    public void printList() {
+        Node current = head;
+        while (current != null) {
+            System.out.print(current.data + " ");
+            current = current.next;
+        }
+        System.out.println();
     }
 
     public static void main(String[] args) {
         LinkedList list = new LinkedList();
 
-        list = additionLast(5, list);
-        list = additionLast(6, list);
-        list = additionLast(7, list);
-        list = additionLast(8, list);
-        list = additionLast(9, list);
-        System.out.println("LinkedList Size => " + getSize(list));
-        list = additionLast(10, list);
-        list = additionLast(11, list);
-        list = additionLast(12, list);
-        list = additionLast(13, list);
-        list = additionLast(14, list);
-        System.out.println("LinkedList Size => " + getSize(list));
+        list.addLast(5).addLast(6).addLast(7).addLast(8).addLast(9);
+        System.out.println("LinkedList Size => " + list.getSize());
+        list.addLast(10).addLast(11).addLast(12).addLast(13).addLast(14);
+        System.out.println("LinkedList Size => " + list.getSize());
 
-        list = deletionLast(list);
-        System.out.println("LinkedList Size => " + getSize(list));
-        list = deletionLast(list);
-        list = deletionLast(list);
-        System.out.println("LinkedList Size => " + getSize(list));
+        list.deleteLast().deleteLast().deleteLast();
+        System.out.println("LinkedList Size => " + list.getSize());
 
-        list = addFirst(100, list);
-        list = addFirst(101, list);
-        list = deleteFirst(list);
+        list.addFirst(100).addFirst(101).deleteFirst();
 
-//        list = deleteAtIdx(list, 9);
-
-        printList(list);
+        list.deleteAtIdx(2); // Delete element at index 2 (removing 7)
+        list.addAtIdx(2, 10001);
+        list.deleteByData(10001);
+        list.printList();
     }
 }
